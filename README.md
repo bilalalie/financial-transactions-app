@@ -69,6 +69,15 @@ mvn spring-boot:run -Dspring.profiles.active=mysql
 **Backend URL:**
 `http://localhost:8080`
 
+```
+
+**Frontend URL:**
+`http://localhost:4200`
+
+The frontend communicates with the backend via REST APIs secured with JWT.
+
+---
+
 **H2 Console (dev mode):**
 `http://localhost:8080/h2-console`
 JDBC URL: `jdbc:h2:mem:fintechdb`
@@ -97,14 +106,7 @@ spring.datasource.password=yourpassword
 cd frontend
 npm install
 ng serve
-```
 
-**Frontend URL:**
-`http://localhost:4200`
-
-The frontend communicates with the backend via REST APIs secured with JWT.
-
----
 
 # 👤 Demo Accounts
 
