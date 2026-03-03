@@ -69,6 +69,14 @@ mvn spring-boot:run -Dspring.profiles.active=mysql
 **Backend URL:**
 `http://localhost:8080`
 
+---
+
+## 🎨 Frontend Setup
+
+```bash
+cd frontend
+npm install
+ng serve
 ```
 
 **Frontend URL:**
@@ -98,14 +106,6 @@ spring.datasource.username=root
 spring.datasource.password=yourpassword
 ```
 
----
-
-## 🎨 Frontend Setup
-
-```bash
-cd frontend
-npm install
-ng serve
 
 
 # 👤 Demo Accounts
