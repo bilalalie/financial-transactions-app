@@ -1,0 +1,213 @@
+<div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+<!--            <div class="logo-mark">💎</div>-->
+            <i class="fa-solid fa-arrow-right-arrow-left"></i>
+            <span class="logo-text">FintechLedger</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a class="nav-item active">
+                <span>📊</span> Dashboard
+            </a>
+            <a class="nav-item" (click)="showTransferModal = true">
+                <span>↔️</span> New Transfer
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">{{ currentUser?.fullName?.charAt(0) }}</div>
+                <div>
+                    <div class="user-name">{{ currentUser?.fullName }}</div>
+                    <div class="user-handle">{{ currentUser?.username }}</div>
+                </div>
+            </div>
+            <button class="logout-btn" (click)="logout()">⏻</button>
+        </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="content-header">
+            <div>
+                <h1>Dashboard</h1>
+                <p>Welcome back, {{ currentUser?.fullName }}</p>
+            </div>
+            <button class="btn-primary" (click)="showTransferModal = true">
+                + New Transfer
+            </button>
+        </header>
+
+        <!-- Summary Cards -->
+        <div class="summary-grid" *ngIf="summary">
+            <div class="summary-card balance">
+                <div class="card-icon">💰</div>
+                <div class="card-content">
+                    <span class="card-label">Current Balance</span>
+                    <span class="card-value">{{ summary.currentBalance | currency }}</span>
+                </div>
+            </div>
+            <div class="summary-card credits">
+                <div class="card-icon">📈</div>
+                <div class="card-content">
+                    <span class="card-label">Total Received</span>
+                    <span class="card-value success">+{{ summary.totalCredits | currency }}</span>
+                </div>
+            </div>
+            <div class="summary-card debits">
+                <div class="card-icon">📉</div>
+                <div class="card-content">
+                    <span class="card-label">Total Sent</span>
+                    <span class="card-value danger">-{{ summary.totalDebits | currency }}</span>
+                </div>
+            </div>
+            <div class="summary-card count">
+                <div class="card-icon">🔄</div>
+                <div class="card-content">
+                    <span class="card-label">Total Transactions</span>
+                    <span class="card-value">{{ summary.transactionCount }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-bar">
+            <h2>Transaction History</h2>
+            <div class="filters">
+                <select [(ngModel)]="filterType" (change)="applyFilters()" class="filter-select">
+                    <option value="">All Types</option>
+                    <option value="sent">Sent</option>
+                    <option value="received">Received</option>
+                </select>
+                <select [(ngModel)]="sortOrder" (change)="applyFilters()" class="filter-select">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="highest">Highest Amount</option>
+                    <option value="lowest">Lowest Amount</option>
+                </select>
+                <input type="date" [(ngModel)]="filterDate" (change)="applyFilters()"
+                       class="filter-select" placeholder="Filter by date">
+                <button *ngIf="filterType || sortOrder !== 'newest' || filterDate"
+                        (click)="clearFilters()" class="btn-clear">Clear</button>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading-state" *ngIf="loading">
+            <div class="spinner"></div>
+            <p>Loading transactions...</p>
+        </div>
+
+        <!-- Empty state -->
+        <div class="empty-state" *ngIf="!loading && filteredTransactions.length === 0">
+            <div class="empty-icon">📭</div>
+            <p>No transactions found</p>
+            <button class="btn-primary" (click)="showTransferModal = true">Make Your First Transfer</button>
+        </div>
+
+        <!-- Transactions Table -->
+        <div class="table-container" *ngIf="!loading && filteredTransactions.length > 0">
+            <table class="transactions-table">
+                <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Date</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Amount</th>
+                    <th>Balance After</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let tx of filteredTransactions" [class.sent]="tx.sourceAccountUsername === currentUser?.username"
+                    [class.received]="tx.destinationAccountUsername === currentUser?.username">
+                    <td class="desc-cell">
+                        <span class="tx-icon">{{ tx.sourceAccountUsername === currentUser?.username ? '↗️' : '↙️' }}</span>
+                        {{ tx.description }}
+                    </td>
+                    <td class="date-cell">{{ tx.transactionDate | date:'MMM d, y, h:mm a' }}</td>
+                    <td>
+                  <span class="account-badge" [class.me]="tx.sourceAccountUsername === currentUser?.username">
+                    {{ tx.sourceAccountUsername }}
+                  </span>
+                    </td>
+                    <td>
+                  <span class="account-badge" [class.me]="tx.destinationAccountUsername === currentUser?.username">
+                    {{ tx.destinationAccountUsername }}
+                  </span>
+                    </td>
+                    <td class="amount-cell">
+                  <span [class.amount-sent]="tx.sourceAccountUsername === currentUser?.username"
+                        [class.amount-received]="tx.destinationAccountUsername === currentUser?.username">
+                    {{ tx.sourceAccountUsername === currentUser?.username ? '-' : '+' }}{{ tx.amount | currency }}
+                  </span>
+                    </td>
+                    <td class="balance-cell">
+                        {{ getBalanceAfter(tx) | currency }}
+                    </td>
+                    <td>
+                  <span class="status-badge" [class]="'status-' + tx.status.toLowerCase()">
+                    {{ tx.status }}
+                  </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+<!-- Transfer Modal -->
+<div class="modal-overlay" *ngIf="showTransferModal" (click)="closeModal($event)">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>New Transfer</h2>
+            <button class="close-btn" (click)="showTransferModal = false">✕</button>
+        </div>
+
+        <form (ngSubmit)="submitTransfer()" class="transfer-form">
+            <div class="form-group">
+                <label>To Account</label>
+                <select [(ngModel)]="transferForm.destinationAccountId" name="dest" required class="form-input">
+                    <option value="">Select recipient</option>
+                    <option *ngFor="let acc of otherAccounts" [value]="acc.id">
+                        {{ acc.fullName }} ({{ acc.username }})
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Amount (USD)</label>
+                <div class="amount-input-wrapper">
+                    <span class="currency-symbol">$</span>
+                    <input type="number" [(ngModel)]="transferForm.amount" name="amount"
+                           min="0.01" step="0.01" required class="form-input amount-input"
+                           placeholder="0.00">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text" [(ngModel)]="transferForm.description" name="description"
+                       required class="form-input" placeholder="What's this for?">
+            </div>
+
+            <div class="balance-preview" *ngIf="summary">
+                <span>Available Balance:</span>
+                <strong>{{ summary.currentBalance | currency }}</strong>
+            </div>
+
+            <div class="error-msg" *ngIf="transferError">{{ transferError }}</div>
+            <div class="success-msg" *ngIf="transferSuccess">✅ Transfer successful!</div>
+
+            <div class="modal-actions">
+                <button type="button" (click)="showTransferModal = false" class="btn-secondary">Cancel</button>
+                <button type="submit" [disabled]="submitting" class="btn-primary">
+                    {{ submitting ? 'Processing...' : 'Send Money' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

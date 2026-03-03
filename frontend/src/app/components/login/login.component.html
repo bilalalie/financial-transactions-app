@@ -1,0 +1,43 @@
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="logo">
+<!--            <div class="logo-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#FFFF55"><path d="M200-280v-280h80v280h-80Zm240 0v-280h80v280h-80ZM80-120v-80h800v80H80Zm600-160v-280h80v280h-80ZM80-640v-80l400-200 400 200v80H80Zm178-80h444-444Zm0 0h444L480-830 258-720Z"/></svg></div>-->
+<!--            <i class="fas fa-wallet"></i>-->
+            <i class="fa-solid fa-arrow-right-arrow-left"></i>
+            <h1>FintechLedger</h1>
+            <p>Secure Financial Management</p>
+        </div>
+
+        <form (ngSubmit)="onLogin()" class="login-form">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" [(ngModel)]="username" name="username"
+                       placeholder="Enter username" required autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" [(ngModel)]="password" name="password"
+                       placeholder="Enter password" required autocomplete="current-password">
+            </div>
+
+            <div class="error-msg" *ngIf="errorMsg">{{ errorMsg }}</div>
+
+            <button type="submit" [disabled]="loading" class="btn-login">
+                {{ loading ? 'Signing in...' : 'Sign In' }}
+            </button>
+        </form>
+
+        <div class="demo-accounts">
+            <p>Demo Accounts:</p>
+            <div class="accounts">
+                <button (click)="fillDemo('alice', 'alice123')" class="demo-btn">
+                    <span>👩</span> Alice / alice123
+                </button>
+                <button (click)="fillDemo('bob', 'bob123')" class="demo-btn">
+                    <span>👨</span> Bob / bob123
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
