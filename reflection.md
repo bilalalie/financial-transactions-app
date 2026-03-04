@@ -1,103 +1,191 @@
-Fintech Project
+# Reflection – Fintech Project
 
-How I Approached the Problem
-Understanding the Requirements First
-Before coding, I broke down the project into three layers:
-1.	Data layer — Identify entities: Account, Transaction, LedgerEntry.
-2.	Business logic layer — Define rules: balance checks, double-entry bookkeeping, authentication.
-3.	Presentation layer — Decide what the user sees and does: login, send money, view transaction history with filters.
-I mapped the relationships: a Transaction connects two Accounts, and each Transaction generates two LedgerEntries (one DEBIT, one CREDIT). This is the core of the ledger system.
-________________________________________
+## Project Overview
 
+This project is a simplified FinTech transaction system built with:
 
-How I Used AI Tools
-1. Architecture Design
-I used AI for prototyping the ledger model. It helped me weigh options:
-•	Separate LedgerEntry table → accurate double-entry accounting, easier queries per account.
-•	Fields on Transaction → simpler, less flexible.
-I chose a separate table to match real-world accounting practices and keep the model extensible.
-2. Security Architecture
-Spring Security 6 changed the configuration style (no WebSecurityConfigurerAdapter). AI guidance helped me write the SecurityFilterChain bean, correctly position the JWT filter, and configure stateless sessions.
-3. Validation Strategy
-AI helped me plan validation layers:
-•	DTO layer — Jakarta Bean Validation (amount > 0, not blank).
-•	Service layer — business rules (sufficient balance, no self-transfer).
-This kept controllers thin and rules testable.
-4. Angular 17 Patterns
-AI guidance helped me use standalone components and the new provideHttpClient(withInterceptors([...])) API with functional interceptors (HttpInterceptorFn), which is the Angular 17 way.
-5. Database Profiles
-For H2 and MySQL support, AI helped me structure Spring profiles: H2 as default for development, MySQL optional. Each profile is independent, avoiding conflicts.
-________________________________________
+- **Backend:** Spring Boot  
+- **Frontend:** Angular  
 
+The application simulates secure fund transfers between accounts using a double-entry ledger system, JWT-based authentication, and a clean layered architecture.
 
-Key Design Decisions
-•	Ledger for audit trail — Each LedgerEntry records the running balance, allowing full history reconstruction.
-•	JWT over sessions — Enables cross-origin auth between Angular frontend and Spring backend, avoiding CSRF issues.
-•	Two hardcoded accounts — Requirement specified no account creation service. I seeded the database with a CommandLineRunner bean safely.
-•	Frontend filtering — Kept client-side for small dataset; backend filtering would be needed for large-scale transactions.
-________________________________________
+---
 
+## How I Approached the Problem
 
-Challenges Encountered
-•	CORS 
-•	Circular dependency risk
-________________________________________
+### 1. Understanding the Requirements First
 
+Before writing code, I divided the system into three architectural layers:
 
-Possible Improvements
-•	Backend + frontend pagination for transactions.
-•	Search transactions by description or amount range.
-•	Email notifications for transfers.
-•	Password reset flow.
-•	Export transaction history (CSV/PDF).
-•	Unit and integration tests.
-•	Docker Compose setup for MySQL.
-•	Rate limiting on login endpoint.
-________________________________________
+#### Data Layer
+Core entities:
+- `Account`
+- `Transaction`
+- `LedgerEntry`
 
+Relationship design:
+- A **Transaction** connects two **Accounts**.
+- Each **Transaction** generates two **LedgerEntry** records:
+  - One **DEBIT**
+  - One **CREDIT**
 
-Conclusion
-AI was most valuable for:
-•	Framework-specific boilerplate (Spring Security, Angular setup).
-•	Architectural decisions (ledger design, validation layers).
-•	Spotting potential issues early (circular dependencies, CORS).
-The main business logic — balance checking, double-entry ledger, atomic transaction creation — was designed and implemented independently, with AI used only for guidance and prototyping.
+This follows real-world double-entry bookkeeping principles.
 
-Here’s a polished addition you can append at the end of your document, tying in your **learning outcomes** and reflecting on the project’s value:
+#### Business Logic Layer
+Defined strict business rules:
+- Authentication required
+- Transfer amount must be positive
+- Sender must have sufficient balance
+- No self-transfer allowed
+- Transactions must be atomic
 
+#### Presentation Layer
+User flow design:
+- Login
+- Send money
+- View transaction history
+- Filter transactions
 
-Project Outcomes: Advanced FinTech Backend Development
+This layered approach ensured separation of concerns and maintainability.
 
-1. Robust Security Architecture
+---
 
-   * Implemented stateless authentication using Spring Security 6 and JWT, supporting scalable microservices.
-   * Applied BCrypt password hashing and HMAC-SHA256 token signing to protect credentials and ensure token integrity.
-   * Developed a custom `JwtFilter` to validate requests and populate the SecurityContext only for authenticated users.
+## How I Used AI Tools
 
-2. Financial Integrity & Auditability
+AI was used as a development assistant primarily for framework-specific configuration and architectural validation.
 
-   * Designed a double-entry ledger system where every transaction generates corresponding debit and credit entries, maintaining an immutable audit trail.
-   * Ensured ACID compliance using Spring’s `@Transactional`, so fund transfers are atomic and consistent.
+### Architecture Design
 
-3. Advanced API & System Design
+Compared two approaches:
+- Storing debit/credit fields directly in `Transaction`
+- Creating a separate `LedgerEntry` table
 
-   * Built a global exception handler with `@ControllerAdvice` for consistent, user-friendly JSON error responses.
-   * Used the DTO pattern to separate database entities from API contracts, protecting sensitive fields like passwords.
-   * Designed JPQL queries to retrieve complete transaction history for users, covering both sent and received transactions.
+I chose a separate `LedgerEntry` table to:
+- Match real-world accounting systems
+- Maintain extensibility
+- Enable per-account queries
+- Preserve auditability
 
-4. Enterprise Best Practices
+### Security Architecture (Spring Security 6 + JWT)
 
-   * Configured CORS for secure communication with the Angular frontend and disabled CSRF for JWT-based endpoints.
-   * Enforced validation at both DTO and service layers (e.g., positive transfer amounts, sufficient balance).
+AI assistance helped with:
+- Configuring `SecurityFilterChain`
+- Positioning the JWT filter correctly
+- Setting stateless session management
+- Disabling CSRF appropriately
+- Implementing BCrypt password hashing
 
+### Validation Strategy
 
+Planned validation across layers:
 
-Key Learning Takeaways
+**DTO Layer (Jakarta Bean Validation)**
+- Amount > 0
+- Required fields
 
-* AI tools accelerated framework-specific setup, validation planning, and security configuration, but the **core business logic** — ledger design, atomic transfers, and balance checks — was implemented independently.
-* Understanding **layered architecture** (data, service, presentation) is crucial for maintainable FinTech applications.
-* Double-entry bookkeeping and ACID compliance are foundational for financial systems, ensuring integrity, traceability, and auditability.
-* Modern frontend-backend integration (Angular + Spring Security + JWT) requires careful CORS, stateless session, and token management strategies.
-* Thoughtful DTO design and exception handling improve API security, usability, and maintainability.
+**Service Layer (Business Rules)**
+- Sufficient balance
+- No self-transfer
 
+This kept controllers thin and business logic testable.
 
+### Angular 17 Patterns
+
+Used modern Angular practices:
+- Standalone components
+- `provideHttpClient(withInterceptors([...]))`
+- Functional interceptors (`HttpInterceptorFn`)
+- JWT token attachment via interceptor
+
+### Database Profiles
+
+Implemented Spring Profiles:
+- H2 (default for development)
+- MySQL (optional production-ready setup)
+
+Profiles are isolated to prevent configuration conflicts.
+
+---
+
+## Key Design Decisions
+
+- **Double-Entry Ledger System**  
+  Each `LedgerEntry` stores the running balance, allowing complete financial history reconstruction.
+
+- **JWT-Based Authentication (Stateless)**  
+  Enables secure frontend-backend separation and avoids CSRF issues.
+
+- **Seeded Accounts via CommandLineRunner**  
+  Two predefined accounts initialized as per project requirements.
+
+- **Client-Side Filtering**  
+  Suitable for small datasets; backend pagination recommended for scalability.
+
+---
+
+## Challenges Encountered
+
+- CORS configuration between Angular and Spring Boot
+- Avoiding circular dependency in security configuration
+
+---
+
+## Project Outcomes: Advanced FinTech Backend Development
+
+### 1. Robust Security Architecture
+- Stateless authentication using JWT
+- BCrypt password hashing
+- Custom JWT filter
+- Secure `SecurityContext` handling
+
+### 2. Financial Integrity & Auditability
+- Double-entry ledger system
+- Immutable audit trail
+- Atomic transfers using `@Transactional`
+- ACID-compliant transaction handling
+
+### 3. Clean API & System Design
+- Global exception handling using `@ControllerAdvice`
+- DTO pattern to protect sensitive fields
+- JPQL queries for full transaction history
+- Structured JSON error responses
+
+### 4. Enterprise Best Practices
+- Proper CORS configuration
+- CSRF disabled for JWT endpoints
+- Layered validation (DTO + Service)
+- Clean separation of concerns
+
+---
+
+## Possible Improvements
+
+- Backend + frontend pagination
+- Search by description or amount range
+- Email notifications
+- Password reset flow
+- CSV/PDF export
+- Unit and integration tests
+- Docker Compose setup
+- Rate limiting on login endpoint
+
+---
+
+## Key Learning Takeaways
+
+- AI accelerated framework setup and configuration.
+- Core financial logic (ledger design, atomic transfers, balance validation) was implemented independently.
+- Layered architecture improves scalability and maintainability.
+- Double-entry bookkeeping is foundational in financial systems.
+- Proper JWT integration requires careful security and CORS handling.
+- Thoughtful DTO and exception design improves API clarity and safety.
+
+---
+
+## AI / LLM Session Links
+
+Backend (Spring Boot):  
+https://chatgpt.com/share/69a7a5cb-c3a4-8008-8d63-6cb197eb0e6c  
+
+Frontend (Angular):  
+https://chatgpt.com/share/69a6f09f-67fc-8008-8d97-83c3b4165144  
