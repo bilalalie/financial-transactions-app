@@ -33,6 +33,28 @@ fintech-app/
         ├── models/        # TypeScript interfaces
         └── services/      # Auth & transaction services
 ```
+## 📸 Screenshots
+
+### Login Page
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/bbfc14fe-7331-4d66-9284-780a632fcc1c" width="800"/>
+</p>
+
+### Dashboard
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/24cac6f1-d03d-43a1-897f-20b1d147eaa5" width="800"/>
+</p>
+
+### Add Transaction
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/6ea00202-f037-4fb0-819b-0108c9da6d85" width="800"/>
+</p>
+
+### Filtering & Sorting
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/af3e14bc-ab41-4b56-a226-0a980ccf1505" width="800"/>
+</p>
+
 
 The project follows a clear layered architecture:
 
